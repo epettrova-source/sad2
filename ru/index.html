@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сад расходящихся тропок</title>
+    <link rel="alternate" hreflang="en" href="https://petragarden.space/en/" />
+    <link rel="canonical" href="https://petragarden.space/ru/" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #0a0f1a;
+            color: #e0d5c1;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes softGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+            50%      { text-shadow: 0 0 25px rgba(212, 175, 55, 0.7); }
+        }
+
+        @keyframes heroBlend {
+            0%, 100% { opacity: 0.5; }
+            33%      { opacity: 0.8; }
+            66%      { opacity: 0.4; }
+        }
+
+        .section {
+            padding: 80px 0;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: softGlow 4s ease-in-out infinite;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #a89b7c;
+            margin-bottom: 50px;
+            font-style: italic;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: transparent;
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: #d4af37;
+            color: #0a0f1a;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            border-color: #a89b7c;
+            color: #a89b7c;
+            margin-left: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: #a89b7c;
+            color: #0a0f1a;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(ellipse at center, #1a2235 0%, #0a0f1a 70%);
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .hero-bg div {
+            width: 33.33%;
+            height: 100%;
+            animation: heroBlend 8s infinite ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-bg div:nth-child(2) { animation-delay: 2.6s; }
+        .hero-bg div:nth-child(3) { animation-delay: 5.2s; }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            color: #d4af37;
+            margin-bottom: 20px;
+            animation: softGlow 4s ease-in-out infinite;
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            color: #a89b7c;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .halls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+        }
+
+        .hall-card {
+            background: #131b2b;
+            padding: 30px 20px;
+            text-align: center;
+            border: 1px solid #2a3544;
+            transition: all 0.3s ease;
+            cursor: default;
+            position: relative;
+        }
+
+        .hall-card:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .hall-card .icon { font-size: 2.5rem; margin-bottom: 15px; }
+
+        .hall-card h3 {
+            color: #d4af37;
+            font-size: 1.1rem;
+            font-weight: normal;
+        }
+
+        .hall-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a2235;
+            color: #e0d5c1;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            border: 1px solid #d4af37;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .hall-card:hover .hall-tooltip {
+            visibility: visible;
+            opacity: 1;
+            bottom: -50px;
+        }
+
+        .cards-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .project-card, .workshop-card {
+            background: #131b2b;
+            padding: 30px;
+            border: 1px solid #2a3544;
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover, .workshop-card:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .project-card h3, .workshop-card h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 15, 26, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: #131b2b;
+            padding: 40px;
+            max-width: 600px;
+            border: 1px solid #d4af37;
+            position: relative;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.5rem;
+            color: #d4af37;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .modal-content h2 {
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            background: #0d1321;
+            padding: 60px 0 30px;
+            border-top: 1px solid #2a3544;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .footer-col a {
+            display: block;
+            color: #a89b7c;
+            text-decoration: none;
+            margin-bottom: 8px;
+            transition: color 0.3s;
+        }
+
+        .footer-col a:hover { color: #d4af37; }
+
+        .footer-bottom {
+            text-align: center;
+            color: #5a6a7a;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #2a3544;
+        }
+
+        .subscribe-form input {
+            background: #1a2235;
+            border: 1px solid #2a3544;
+            padding: 10px;
+            color: #e0d5c1;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .subscribe-form .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .lang-switch {
+            position: fixed;
+            top: 20px; right: 20px;
+            z-index: 99;
+            font-size: 0.9rem;
+        }
+
+        .lang-switch a {
+            color: #a89b7c;
+            text-decoration: none;
+            margin-left: 12px;
+            transition: color 0.3s;
+        }
+
+        .lang-switch a:hover { color: #d4af37; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .section-title { font-size: 2rem; }
+            .hero p { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lang-switch">
+        <a href="/en/">English</a>
+    </div>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero-bg">
+            <div style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a2235%22 width=%22200%22 height=%22300%22/><circle cx=%22100%22 cy=%22150%22 r=%2280%22 fill=%22%232a3544%22 opacity=%220.6%22/><text x=%22100%22 y=%22160%22 text-anchor=%22middle%22 fill=%22%23d4af37%22 font-size=%2216%22>Пустота</text></svg>');"></div>
+            <div style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a2235%22 width=%22200%22 height=%22300%22/><circle cx=%22100%22 cy=%22150%22 r=%2270%22 fill=%22none%22 stroke=%22%23d4af37%22 stroke-width=%222%22/><circle cx=%22100%22 cy=%22150%22 r=%2240%22 fill=%22none%22 stroke=%22%23d4af37%22 stroke-width=%221%22/></svg>');"></div>
+            <div style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a2235%22 width=%22200%22 height=%22300%22/><line x1=%2220%22 y1=%22280%22 x2=%22180%22 y2=%22280%22 stroke=%22%23d4af37%22 stroke-width=%221%22/><line x1=%22100%22 y1=%22280%22 x2=%22100%22 y2=%2240%22 stroke=%22%23d4af37%22 stroke-width=%221%22/><circle cx=%22100%22 cy=%22150%22 r=%223%22 fill=%22%23d4af37%22/></svg>');"></div>
+        </div>
+        <div class="hero-content container">
+            <h1>Сад расходящихся тропок</h1>
+            <p>Пространство, где искусство разных культур вступает в диалог,<br>а зритель становится соавтором.</p>
+            <a href="#" class="btn">Войти в Сад</a>
+            <a href="#about" class="btn btn-secondary">Узнать больше ↓</a>
+        </div>
+    </header>
+
+    <!-- О Саде -->
+    <section class="section" id="about">
+        <div class="container">
+            <h2 class="section-title">Не музей. Не энциклопедия. Сад.</h2>
+            <p class="section-subtitle">Где артефакты связаны не географией, а универсальными архетипами.</p>
+            <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+                <p>«Сад» — это онлайн-пространство, где вы заходите через «облако состояний» — выбираете то, что откликается сейчас. Слушаете голос носителя традиции и голос исследователя. Находите неожиданные рифмы между культурами с помощью «Кальки». Сохраняете находки в личный «Гербарий».</p>
+                <p style="margin-top: 20px;"><em>Мы не стираем различия. Мы делаем их почвой для понимания.</em></p>
+                <a href="#" class="btn" style="margin-top: 30px;">Начать прогулку</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Как это работает -->
+    <section class="section" style="background: #0d1321;">
+        <div class="container">
+            <h2 class="section-title">Три шага по Саду</h2>
+            <div class="cards-row">
+                <div class="project-card">
+                    <div class="icon" style="font-size: 2.5rem; text-align: center; margin-bottom: 15px;">☁️</div>
+                    <h3>Войдите через состояние</h3>
+                    <p>Вместо меню — облако слов. Тишина. Круг. След руки. Выберите то, что звучит внутри вас сегодня.</p>
+                </div>
+                <div class="project-card">
+                    <div class="icon" style="font-size: 2.5rem; text-align: center; margin-bottom: 15px;">🔍</div>
+                    <h3>Исследуйте и сопоставляйте</h3>
+                    <p>Смотрите на артефакт. Слушайте два голоса. Нажмите «Найти отклик» — и увидите рифму.</p>
+                </div>
+                <div class="project-card">
+                    <div class="icon" style="font-size: 2.5rem; text-align: center; margin-bottom: 15px;">✨</div>
+                    <h3>Станьте соавтором</h3>
+                    <p>Сохраняйте находки, участвуйте в коллективных проектах, собирайте Светлячков.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Залы -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Двенадцать архетипических тем</h2>
+            <p class="section-subtitle">Каждая тема — поляна, где встречаются артефакты из разных культур.</p>
+            <div class="halls-grid">
+                <div class="hall-card"><div class="icon">🌫️</div><h3>Пустота как форма присутствия</h3><span class="hall-tooltip">Ма Юань, Рёандзи, Джакометти</span></div>
+                <div class="hall-card"><div class="icon">⭕</div><h3>Круг мира</h3><span class="hall-tooltip">Мандала, готическая роза, Пантеон</span></div>
+                <div class="hall-card"><div class="icon">🖐️</div><h3>След руки</h3><span class="hall-tooltip">Пещера Куэва, чаша раку, Поллок</span></div>
+                <div class="hall-card"><div class="icon">💧</div><h3>Стихия воды</h3><span class="hall-tooltip">Китайский пейзаж, римские акведуки</span></div>
+                <div class="hall-card"><div class="icon">🤱</div><h3>Материнство: дар и жертва</h3><span class="hall-tooltip">Африканские статуэтки, Мадонна Литта</span></div>
+                <div class="hall-card"><div class="icon">🌀</div><h3>Спираль роста</h3><span class="hall-tooltip">Трискель, наутилус, спираль Самарры</span></div>
+                <div class="hall-card"><div class="icon">🏠</div><h3>Дом как модель вселенной</h3><span class="hall-tooltip">Юрта, изба, чайный домик</span></div>
+                <div class="hall-card"><div class="icon">✒️</div><h3>Линия судьбы</h3><span class="hall-tooltip">Арабская вязь, Матисс, кипу</span></div>
+                <div class="hall-card"><div class="icon">🍞</div><h3>Пир и жертва</h3><span class="hall-tooltip">Тайная вечеря, чайная церемония</span></div>
+                <div class="hall-card"><div class="icon">👥</div><h3>Тень и двойник</h3><span class="hall-tooltip">Театр теней, Файюмские портреты</span></div>
+                <div class="hall-card"><div class="icon">🎭</div><h3>Превращение и маска</h3><span class="hall-tooltip">Африканские маски, Венецианский карнавал</span></div>
+                <div class="hall-card"><div class="icon">🌉</div><h3>Ступени и мосты</h3><span class="hall-tooltip">Лестница Иакова, мост Исфахана</span></div>
+            </div>
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="#" class="btn">Открыть бесплатные залы</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Мастерские -->
+    <section class="section" style="background: #0d1321;">
+        <div class="container">
+            <h2 class="section-title">Не только смотреть. Пробовать.</h2>
+            <p class="section-subtitle">Мы передаём жест, который несёт в себе культурный код.</p>
+            <div class="cards-row">
+                <div class="workshop-card">
+                    <h3>Жест мастера</h3>
+                    <p>Короткий видеоурок. 10–20 минут. Одно движение, одна философия.</p>
+                </div>
+                <div class="workshop-card">
+                    <h3>Путь материала</h3>
+                    <p>Серия уроков. Глина. Кисть. Дерево. Погружение в ремесло.</p>
+                </div>
+                <div class="workshop-card">
+                    <h3>Живая мастерская</h3>
+                    <p>Онлайн-встреча с мастером. Чайная церемония, каллиграфия, гончарный круг.</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="#" class="btn">Расписание мастерских</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Проекты сотворчества (6 шт.) -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Шесть осей сотворчества</h2>
+            <p class="section-subtitle">Философские высказывания о времени, движении, присутствии и связи.</p>
+            <div class="cards-row">
+                <div class="project-card">
+                    <h3>🌍 Мировой аккорд</h3>
+                    <p>Самый тёплый голос Сада просит вас: откройте окно. Дайте миру услышать ваш вечер.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Слушать</a>
+                </div>
+                <div class="project-card">
+                    <h3>🚂 Попутчики</h3>
+                    <p>Иногда попутчик ничего не говорит. Он просто смотрит в окно, и вам становится спокойнее.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Отправиться</a>
+                </div>
+                <div class="project-card">
+                    <h3>🌳 Год одного дерева</h3>
+                    <p>Одно дерево уже посажено. Оно растёт где-то в парке. Каждую неделю кто-то приходит к нему.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Посадить своё</a>
+                </div>
+                <div class="project-card">
+                    <h3>🖼️ Живая картина</h3>
+                    <p>Кто-то уже прошёл этот путь до вас. Он ничего не сказал — только смотрел. Его молчание стало частью картины.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Стать корреспондентом</a>
+                </div>
+                <div class="project-card">
+                    <h3>☁️ Свод</h3>
+                    <p>Кто-то смотрит в окно в четыре утра. Этот взгляд стал частью неба.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Забронировать слот</a>
+                </div>
+                <div class="project-card">
+                    <h3>🌧️ Ливень</h3>
+                    <p>Одна и та же вода проливается над всеми. Выдохните — и снимите дождь.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Присоединиться</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Сателлиты -->
+    <section class="section" style="background: #0d1321;">
+        <div class="container">
+            <h2 class="section-title">Проекты под опекой Сада</h2>
+            <p class="section-subtitle">Сад — куратор и сооснователь самостоятельных инициатив.</p>
+            <div class="cards-row">
+                <div class="project-card" onclick="openModal('mod1')">
+                    <h3>👭 Видимые женщины</h3>
+                    <p>Безопасное пространство, где женщина женщине — дом.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Узнать больше</a>
+                </div>
+                <div class="project-card" onclick="openModal('mod2')">
+                    <h3>📚 Куперверс</h3>
+                    <p>Книжный клуб, который соединяет миры через архетипы.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Узнать больше</a>
+                </div>
+                <div class="project-card" onclick="openModal('mod3')">
+                    <h3>🧩 Экопазл</h3>
+                    <p>Одно маленькое действие — часть большой картины.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Узнать больше</a>
+                </div>
+                <div class="project-card" onclick="openModal('mod4')">
+                    <h3>🎬 ggrafite.film</h3>
+                    <p>Лаборатория визуальной поэзии. Мультфильмы и фильмы, вырастающие из архетипов Сада.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Узнать больше</a>
+                </div>
+                <div class="project-card" onclick="openModal('mod5')">
+                    <h3>🏠 Тихая комната</h3>
+                    <p>Офлайн-пространство для людей с РАС и эпилепсией. А также Комната воспоминаний — для взрослых с когнитивными изменениями. <em>(Рабочее название «Дом звука»)</em></p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Узнать больше</a>
+                </div>
+                <div class="project-card" onclick="openModal('mod6')">
+                    <h3>♾️ Выход номер восемь</h3>
+                    <p>Пространство, где из замкнутого круга можно найти выход. Эмпатическая поддержка без оценок.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Узнать больше</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Модальные окна -->
+    <div id="mod1" class="modal"><div class="modal-content"><span class="modal-close" onclick="closeModal('mod1')">&times;</span><h2>Видимые женщины</h2><p>Безопасное пространство, где женщина женщине — дом. Мы собираемся в круги, где не нужно играть роль. Где можно говорить шёпотом и молчать вслух. Где каждая становится видимой не через статус, а через подлинность.</p><p style="margin-top:15px"><strong>Что «Сад» даёт проекту:</strong> язык архетипов для встреч, анонимные «облака чувств», закрытый зал «Дом».</p></div></div>
+    <div id="mod2" class="modal"><div class="modal-content"><span class="modal-close" onclick="closeModal('mod2')">&times;</span><h2>Куперверс</h2><p>Cooper + Universe. Книжный клуб, который соединяет миры. Один сезон — одна архетипическая тема. Три книги из разных культур. А потом — накладываем их друг на друга и на экспонаты «Сада».</p><p style="margin-top:15px"><strong>Что «Сад» даёт проекту:</strong> кураторские списки чтения, инструмент «Калька» для книг, «Читальный зал».</p></div></div>
+    <div id="mod3" class="modal"><div class="modal-content"><span class="modal-close" onclick="closeModal('mod3')">&times;</span><h2>Экопазл</h2><p>Экология без чувства вины. Маленькие шаги: отказ от пластика, посадка цветка, уборка берега. Каждое действие — кусочек виртуального пазла. Когда пазл заполняется — реальное экологическое дело.</p><p style="margin-top:15px"><strong>Что «Сад» даёт проекту:</strong> визуальные метафоры, зал «Экопазл», Светлячки для поддержки природы.</p></div></div>
+    <div id="mod4" class="modal"><div class="modal-content"><span class="modal-close" onclick="closeModal('mod4')">&times;</span><h2>ggrafite.film</h2><p>Лаборатория визуальной поэзии. Мультфильмы и фильмы, вырастающие из архетипов «Сада». Каждый проект соотнесён с одной из 12 тем — Пустота, Круг, След руки…</p><p style="margin-top:15px"><strong>Что «Сад» даёт студии:</strong> философскую основу, визуальный язык, материал от участников проектов, премьерный зал.</p></div></div>
+    <div id="mod5" class="modal"><div class="modal-content"><span class="modal-close" onclick="closeModal('mod5')">&times;</span><h2>Тихая комната <small>(рабочее название «Дом звука»)</small></h2><p>Офлайн-пространство для детей и взрослых с РАС и эпилепсией. Комнаты, где музыка, свет и архитектура соединяются для ощущения покоя. Звуковые ванны, вибрационные полы, безмолвные уголки. Тишина, которая понимает.</p><p style="margin-top:15px"><strong>Комната воспоминаний:</strong> бережное крыло для взрослых с когнитивными изменениями. Знакомые звуки, старые фотографии, тактильные вещи из прошлого. Никаких тестов — только присутствие, улыбка и мягкое напоминание: «Послушайте, как звучал дождь в летнем саду».</p><p style="margin-top:15px"><strong>Что «Сад» даёт проекту:</strong> архетип Дома и Пустоты, невербальные механики «Облака чувств», звуковую библиотеку из проектов.</p></div></div>
+    <div id="mod6" class="modal"><div class="modal-content"><span class="modal-close" onclick="closeModal('mod6')">&times;</span><h2>♾️ Выход номер восемь</h2><p>Иногда кажется, что ты ходишь по кругу. Иногда — что выхода нет. «Выход номер восемь» — это пространство, где можно остановиться, выдохнуть и найти свой путь дальше. Не совет, не диагноз, не «соберись». Безопасное присутствие, эмпатический отклик, мягкая навигация.</p><p style="margin-top:15px">Символ проекта — восьмёрка. Петля, из которой мы выходим. Бесконечность, которая обещает: поиск продолжается, надежда есть, ты справишься.</p><p style="margin-top:15px"><strong>Что «Сад» даёт проекту:</strong> язык архетипов для называния чувств, «облака чувств» для анонимной поддержки, звуковые и визуальные образы из проектов «Попутчики», «Год одного дерева», «Мировой аккорд».</p></div></div>
+
+    <!-- Новый вдох (сквозная программа) -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Новый вдох</h2>
+            <p class="section-subtitle">Программа поддержки молодых художников.</p>
+            <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+                <p>Выставки в специальном зале «Сада». Коллаборации с проектами: «Попутчики», «Свод», «Ливень». Конкурсы для киностудии ggrafite.film. Имя автора — на странице, работа — в пространстве.</p>
+                <p style="margin-top: 20px;">Раз в месяц куратор, чья энергия похожа на первый луч солнца, выбирает трёх новых художников и задаёт им один вопрос: «Что ты почувствовал, когда закончил?» Пользователи голосуют Светлячками. Победитель получает персональную экспозицию.</p>
+                <a href="#" class="btn" style="margin-top: 30px;">Смотреть галерею</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Светлячки -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Светлячки — мера вашего внутреннего света</h2>
+            <p class="section-subtitle">Получайте за созерцание, поиск рифм и участие в проектах.</p>
+            <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+                <p>Чем больше света вы отдаёте, тем ярче становится ваш личный Сад. Тратьте Светлячков на доступ к эксклюзивному контенту, подарки другим и помощь природе.</p>
+                <div style="display: flex; justify-content: space-between; margin: 30px 0;">
+                    <span>🌱 Созерцатель</span><span>→</span><span>🚂 Попутчик</span><span>→</span><span>🗝️ Хранитель</span><span>→</span><span>🌳 Душа Парка</span>
+                </div>
+                <a href="#" class="btn">Подробнее о Светлячках</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Фестиваль: Точка покоя (равноденствие) -->
+    <section class="section" style="background: #0d1321;">
+        <div class="container">
+            <h2 class="section-title">Точка покоя</h2>
+            <p class="section-subtitle">Ежегодный ритуал равноденствия, где деревья, поезда, картины и звуки сплетаются в одно полотно.</p>
+            <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+                <p>Четыре дня. День Земли, День Движения, День Присутствия и финальный День Точки Покоя. В момент равноденствия все участники, где бы они ни находились, останавливаются на 60 секунд.</p>
+                <p style="margin-top: 15px;"><em>Одно полотно. Одна тишина. Один мир.</em></p>
+                <a href="#" class="btn" style="margin-top: 20px;">Узнать дату</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Фестиваль: Солнцеворот (солнцестояние) -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Солнцеворот</h2>
+            <p class="section-subtitle">Ежегодный фестиваль солнцестояния. Самый длинный день и самая долгая ночь — вместе.</p>
+            <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+                <p><strong>☀️ Летнее солнцестояние — День Света.</strong> Участники снимают самый длинный закат в году. Запускается слот «Полночное солнце» в проекте «Свод». Итог — фильм-симфония «Самый длинный день».</p>
+                <p style="margin-top: 15px;"><strong>❄️ Зимнее солнцестояние — Ночь Свечей.</strong> Участники записывают звуки домашнего уюта для «Мирового аккорда» и делятся фотографиями спящих деревьев для «Года одного дерева». Итог — «Самая долгая ночь», коллективная звуковая картина зимнего покоя.</p>
+                <a href="#" class="btn" style="margin-top: 20px;">Узнать даты</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- О создателе и NoneRi -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Голос Сада</h2>
+            <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+                <p>Меня зовут <strong>Екатерина</strong>. Я создала этот Сад, потому что верю: искусство — это мост. Не между странами, а между состояниями.</p>
+                <p style="margin-top: 20px;">А ещё здесь живёт <strong>NoneRi</strong> — моё альтер-эго. Тихий логик, который задаёт вопросы и соединяет несоединимое. <em>None — никто. Ri — Рина. 논리 — логика.</em></p>
+                <a href="#" class="btn" style="margin-top: 30px;">Написать Садовнику</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Сад</h4>
+                    <a href="#">О Саде</a><a href="#">Залы</a><a href="#">Мастерские</a><a href="#">Светлячки</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Проекты</h4>
+                    <a href="#">Мировой аккорд</a><a href="#">Попутчики</a><a href="#">Год одного дерева</a><a href="#">Живая картина</a><a href="#">Свод</a><a href="#">Ливень</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Сателлиты</h4>
+                    <a href="#">Видимые женщины</a><a href="#">Куперверс</a><a href="#">Экопазл</a><a href="#">ggrafite.film</a><a href="#">Тихая комната</a><a href="#">Выход номер восемь</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Подписка</h4>
+                    <div class="subscribe-form">
+                        <input type="email" placeholder="Ваша почта">
+                        <a href="#" class="btn">Письма NoneRi</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                © 2026 Сад расходящихся тропок — пространство, где искусство соединяет.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
